@@ -69,10 +69,13 @@ void cadastra_aluno(td_aluno alunos[], int *qtd_alunos, int *capacidade) {
     td_aluno *novo_aluno = &alunos[*qtd_alunos];
     printf("RA: ");
     scanf("%d", &novo_aluno->ra);
+    getchar();
     printf("Nome: ");
-    scanf("%s", novo_aluno->nome);
+    fgets(novo_aluno->nome, sizeof(novo_aluno->nome), stdin);
+    novo_aluno->nome[strcspn(novo_aluno->nome, "\n")] = 0;
     printf("Email: ");
-    scanf("%s", novo_aluno->email);
+    fgets(novo_aluno->email, sizeof(novo_aluno->email), stdin);
+    novo_aluno->email[strcspn(novo_aluno->email, "\n")] = 0;
     printf("Data de matrícula (dd mm aaaa): ");
     scanf("%d %d %d", &novo_aluno->matricula.dia, &novo_aluno->matricula.mes, &novo_aluno->matricula.ano);
     if (!verifica_data(&novo_aluno->matricula)) {
@@ -80,10 +83,12 @@ void cadastra_aluno(td_aluno alunos[], int *qtd_alunos, int *capacidade) {
         return;
     }
     for (int i = 0; i < 4; i++) {
-        printf("Código da disciplina %d: ", i + 1);
+        printf("Código da disciplina %d (int): ", i + 1);
         scanf("%d", &novo_aluno->disciplinas[i].codigo_dis);
+        getchar();
         printf("Nome da disciplina: ");
-        scanf("%s", novo_aluno->disciplinas[i].disciplina);
+        fgets(novo_aluno->disciplinas[i].disciplina, sizeof(novo_aluno->disciplinas[i].disciplina), stdin);
+        novo_aluno->disciplinas[i].disciplina[strcspn(novo_aluno->disciplinas[i].disciplina, "\n")] = 0;
         float soma_notas = 0;
         for (int j = 0; j < 4; j++) {
             printf("Nota %d: ", j + 1);
@@ -163,28 +168,30 @@ void imprime_compromissos_aluno(td_compromisso *compromissos, int qtd_compromiss
     if (qtd_compromissos == 0) {
         printf("Nenhum compromisso cadastrado.\n");
         return;
-    } else {
-        int aluno_encontrado = 0;
-        for (int i = 0; i < qtd_compromissos; i++) {
-            if (compromissos[i].aluno.ra == ra) {
-                aluno_encontrado = 1;
+    }
+    
+    int aluno_encontrado = 0;
+
+    qsort(compromissos, qtd_compromissos, sizeof(td_compromisso), compara_compromissos);
+    
+    for (int i = 0; i < qtd_compromissos; i++) {
+        if (compromissos[i].aluno.ra == ra) {
+            if (!aluno_encontrado) {
                 printf("Compromissos do aluno RA %d:\n", ra);
-                qsort(compromissos, qtd_compromissos, sizeof(td_compromisso), compara_compromissos);
-                if (compromissos[i].aluno.ra == ra) {
-                    printf("%02d/%02d/%04d - %02d:%02d - %s\n",
-                    compromissos[i].data.dia, compromissos[i].data.mes, compromissos[i].data.ano,
-                    compromissos[i].horario.hora, compromissos[i].horario.min,
-                    compromissos[i].descricao);
-                }
-                break;
+                aluno_encontrado = 1;
             }
-        }
-        if (!aluno_encontrado) {
-            printf("Aluno não encontrado!\n");
-            return;
+            printf("%02d/%02d/%04d - %02d:%02d - %s\n",
+                compromissos[i].data.dia, compromissos[i].data.mes, compromissos[i].data.ano,
+                compromissos[i].horario.hora, compromissos[i].horario.min,
+                compromissos[i].descricao);
         }
     }
+    
+    if (!aluno_encontrado) {
+        printf("Aluno não encontrado!\n");
+    }
 }
+
 
 void imprime_todos_compromissos(td_compromisso *compromissos, int qtd_compromissos) {
     qsort(compromissos, qtd_compromissos, sizeof(td_compromisso), compara_compromissos);

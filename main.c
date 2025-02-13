@@ -173,25 +173,10 @@ int main() {
         
         switch (opcao) {
             case 1:
-                // cadastra aluno
-                if (qtd_alunos >= capacidade_alunos) {
-                    alunos = realoca_alunos(alunos, &capacidade_alunos);
-                    if (!alunos) {
-                        printf("Erro ao realocar memória para alunos.\n");
-                        return 1;
-                    }
-                }
                 cadastra_aluno(alunos, &qtd_alunos, &capacidade_alunos);
                 break;
             case 2:
                 // cadastra compromisso
-                if (qtd_compromissos >= capacidade_compromissos) {
-                    compromissos = realoca_compromissos(compromissos, &capacidade_compromissos);
-                    if (!compromissos) {
-                        printf("Erro ao realocar memória para compromissos.\n");
-                        return 1;
-                    }
-                }
                 if (qtd_alunos == 0) {
                     printf("Nenhum aluno cadastrado.\n");
                     break;
@@ -205,12 +190,12 @@ int main() {
                 printf("2 - de todos os alunos\n");
                 printf("3 - de uma data\n");
                 printf("4 - de todas as datas\n");
-                        // imprime compromissos de um aluno ordenados por data e hora
-                        int ra_aluno;
-                        printf("Digite o RA do aluno: ");
+                printf("Escolha uma opção: ");
+                scanf("%d", &opcao_imprimir_compromissos);
                 switch (opcao_imprimir_compromissos) {
                     case 1:
                         // imprime compromissos de um aluno ordenados por data e hora
+                        int ra_aluno;
                         printf("Digite o RA do aluno: ");
                         scanf("%d", &ra_aluno);
                         if (!existe_aluno(alunos, qtd_alunos, ra_aluno)) {
@@ -218,6 +203,7 @@ int main() {
                         } else {
                             imprime_compromissos_aluno(compromissos, qtd_compromissos, ra_aluno);
                         }
+                        break;
                     case 2:
                         // imprime todos os compromissos ordenados por ra, data e hora
                         if (qtd_compromissos == 0) {
@@ -225,6 +211,7 @@ int main() {
                         } else {
                             imprime_todos_compromissos(compromissos, qtd_compromissos);
                         }
+                        break;
                     case 3:
                         // imprime compromissos de uma data ordenados por hora e ra
                         td_data data;
@@ -232,8 +219,10 @@ int main() {
                         scanf("%d %d %d", &data.dia, &data.mes, &data.ano);
                         if (!verifica_data(&data)) {
                             printf("Data inválida!\n");
+                            break; // Adicione o break aqui
                         }
                         imprime_compromissos_data(compromissos, qtd_compromissos, data);
+                        break; // Adicione o break aqui
                     case 4:
                         // imprime todos os compromissos ordenados por data, hora e ra
                         if (qtd_compromissos == 0) {
@@ -241,24 +230,33 @@ int main() {
                         } else {
                             imprime_todos_compromissos_ordenados(compromissos, qtd_compromissos);
                         }
+                        break;
                     default:
                         printf("Opção inválida!\n");
+                        break;
                 }
-                break;
             case 4:
-                // imprimir dados de um aluno
+                // Imprimir dados de um aluno
                 int ra;
                 printf("Digite o RA do aluno: ");
                 scanf("%d", &ra);
+
+                int encontrado = 0;
+
                 for (int i = 0; i < qtd_alunos; i++) {
                     if (alunos[i].ra == ra) {
+                        printf("------------------------------------\n");
                         imprime_vetor_de_1_aluno(alunos[i]);
-                        break;
-                    } else {
-                        printf("Aluno não encontrado!\n");
-                        break;
+                        encontrado = 1; // Marca que encontrou o aluno
+                        break; // Sai do loop após encontrar o aluno
                     }
                 }
+
+                if (!encontrado) {
+                    printf("Aluno não encontrado!\n");
+                }
+                break;
+
             case 5:
                 // imprimir dados de todos os alunos
                 printf("------------------------------------\n");

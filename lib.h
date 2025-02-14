@@ -149,7 +149,7 @@ void cadastra_compromisso(td_compromisso *compromissos, int *qtd_compromissos, i
     (*qtd_compromissos)++;
 }
 
-int compara_compromissos(const void *a, const void *b) {
+int compara_data_hora(const void *a, const void *b) {
     td_compromisso *comp1 = (td_compromisso *)a;
     td_compromisso *comp2 = (td_compromisso *)b;
     
@@ -164,39 +164,62 @@ int compara_compromissos(const void *a, const void *b) {
     return comp1->horario.min - comp2->horario.min;
 }
 
+int compara_ra_data_hora(const void *a, const void *b) {
+    td_compromisso *comp1 = (td_compromisso *)a;
+    td_compromisso *comp2 = (td_compromisso *)b;
+    
+    if (comp1->aluno.ra != comp2->aluno.ra)
+        return comp1->aluno.ra - comp2->aluno.ra;
+    return compara_data_hora(a, b);
+}
+
+int compara_hora_ra(const void *a, const void *b) {
+    td_compromisso *comp1 = (td_compromisso *)a;
+    td_compromisso *comp2 = (td_compromisso *)b;
+    
+    if (comp1->horario.hora != comp2->horario.hora)
+        return comp1->horario.hora - comp2->horario.hora;
+    if (comp1->horario.min != comp2->horario.min)
+        return comp1->horario.min - comp2->horario.min;
+    return comp1->aluno.ra - comp2->aluno.ra;
+}
+
 void imprime_compromissos_aluno(td_compromisso *compromissos, int qtd_compromissos, int ra) {
     if (qtd_compromissos == 0) {
         printf("Nenhum compromisso cadastrado.\n");
         return;
     }
-    
-    int aluno_encontrado = 0;
 
-    qsort(compromissos, qtd_compromissos, sizeof(td_compromisso), compara_compromissos);
+    // Ordenar por data e hora
+    qsort(compromissos, qtd_compromissos, sizeof(td_compromisso), compara_data_hora);
     
+    int encontrou = 0;
+    printf("\nCompromissos do aluno RA %d:\n", ra);
     for (int i = 0; i < qtd_compromissos; i++) {
         if (compromissos[i].aluno.ra == ra) {
-            if (!aluno_encontrado) {
-                printf("Compromissos do aluno RA %d:\n", ra);
-                aluno_encontrado = 1;
-            }
             printf("%02d/%02d/%04d - %02d:%02d - %s\n",
-                compromissos[i].data.dia, compromissos[i].data.mes, compromissos[i].data.ano,
-                compromissos[i].horario.hora, compromissos[i].horario.min,
-                compromissos[i].descricao);
+                   compromissos[i].data.dia, compromissos[i].data.mes, compromissos[i].data.ano,
+                   compromissos[i].horario.hora, compromissos[i].horario.min,
+                   compromissos[i].descricao);
+            encontrou = 1;
         }
     }
     
-    if (!aluno_encontrado) {
-        printf("Aluno não encontrado!\n");
+    if (!encontrou) {
+        printf("Nenhum compromisso encontrado para este aluno.\n");
     }
 }
 
-
 void imprime_todos_compromissos(td_compromisso *compromissos, int qtd_compromissos) {
-    qsort(compromissos, qtd_compromissos, sizeof(td_compromisso), compara_compromissos);
+    if (qtd_compromissos == 0) {
+        printf("Nenhum compromisso cadastrado.\n");
+        return;
+    }
+
+    // Ordenar por RA, data e hora
+    qsort(compromissos, qtd_compromissos, sizeof(td_compromisso), compara_ra_data_hora);
     
-    printf("Todos os compromissos:\n");
+    printf("\nTodos os compromissos (ordenados por RA, data e hora):\n");
     for (int i = 0; i < qtd_compromissos; i++) {
         printf("RA: %d - %02d/%02d/%04d - %02d:%02d - %s\n",
                compromissos[i].aluno.ra,
@@ -207,24 +230,61 @@ void imprime_todos_compromissos(td_compromisso *compromissos, int qtd_compromiss
 }
 
 void imprime_compromissos_data(td_compromisso *compromissos, int qtd_compromissos, td_data data) {
-    qsort(compromissos, qtd_compromissos, sizeof(td_compromisso), compara_compromissos);
+    if (qtd_compromissos == 0) {
+        printf("Nenhum compromisso cadastrado.\n");
+        return;
+    }
+
+    td_compromisso *temp = malloc(qtd_compromissos * sizeof(td_compromisso));
+    int qtd_temp = 0;
     
-    printf("Compromissos na data %02d/%02d/%04d:\n", data.dia, data.mes, data.ano);
     for (int i = 0; i < qtd_compromissos; i++) {
         if (compromissos[i].data.dia == data.dia &&
             compromissos[i].data.mes == data.mes &&
             compromissos[i].data.ano == data.ano) {
-            printf("RA: %d - %02d:%02d - %s\n",
-                   compromissos[i].aluno.ra,
-                   compromissos[i].horario.hora, compromissos[i].horario.min,
-                   compromissos[i].descricao);
+            temp[qtd_temp++] = compromissos[i];
         }
     }
+
+    if (qtd_temp == 0) {
+        printf("\nNenhum compromisso encontrado na data %02d/%02d/%04d.\n",
+               data.dia, data.mes, data.ano);
+        free(temp);
+        return;
+    }
+
+    // Ordenar por hora e RA
+    qsort(temp, qtd_temp, sizeof(td_compromisso), compara_hora_ra);
+    
+    printf("\nCompromissos do dia %02d/%02d/%04d (ordenados por hora e RA):\n",
+           data.dia, data.mes, data.ano);
+    for (int i = 0; i < qtd_temp; i++) {
+        printf("%02d:%02d - RA: %d - %s\n",
+               temp[i].horario.hora, temp[i].horario.min,
+               temp[i].aluno.ra,
+               temp[i].descricao);
+    }
+    
+    free(temp);
 }
 
-void imprime_todos_compromissos_ordenados(td_compromisso *compromissos, int qtd_compromissos) {
-    qsort(compromissos, qtd_compromissos, sizeof(td_compromisso), compara_compromissos);
-    imprime_todos_compromissos(compromissos, qtd_compromissos);
+void imprime_todas_datas(td_compromisso *compromissos, int qtd_compromissos) {
+    if (qtd_compromissos == 0) {
+        printf("Nenhum compromisso cadastrado.\n");
+        return;
+    }
+
+    // Ordenar por data, hora e RA
+    qsort(compromissos, qtd_compromissos, sizeof(td_compromisso), compara_data_hora);
+    
+    printf("\nTodos os compromissos (ordenados por data, hora e RA):\n");
+    for (int i = 0; i < qtd_compromissos; i++) {
+        printf("%02d/%02d/%04d - %02d:%02d - RA: %d - %s\n",
+               compromissos[i].data.dia, compromissos[i].data.mes, compromissos[i].data.ano,
+               compromissos[i].horario.hora, compromissos[i].horario.min,
+               compromissos[i].aluno.ra,
+               compromissos[i].descricao);
+    }
 }
 
 void imprime_vetor_de_1_aluno(td_aluno aluno) {

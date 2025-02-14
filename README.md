@@ -66,17 +66,16 @@ typedef struct {
 
 ## 🖥 Estrutura do Menu
 
-1. Cadastrar disciplina
-2. Cadastrar aluno
-3. Cadastrar compromisso
-4. Imprimir compromissos:
+1. Cadastrar aluno
+2. Cadastrar compromisso
+3. Imprimir compromissos:
    - a) De um aluno (ordenado por data e hora).
    - b) De todos os alunos (ordenado por RA, data e hora).
    - c) De uma data específica (ordenado por hora e RA).
    - d) De todas as datas (ordenado por data, hora e RA).
-5. Exibir dados de um aluno
-6. Exibir dados de todos os alunos (ordenado por RA)
-7. Sair
+4. Exibir dados de um aluno
+5. Exibir dados de todos os alunos (ordenado por RA)
+6. Sair
 
 ## ⚙️ Implementação Técnica
 

@@ -235,6 +235,7 @@ int main() {
                         printf("Opção inválida!\n");
                         break;
                 }
+                break;
             case 4:
                 // Imprimir dados de um aluno
                 int ra;
@@ -259,7 +260,7 @@ int main() {
 
             case 5:
                 // imprimir dados de todos os alunos
-                printf("------------------------------------\n");
+                printf("\n------------------------------------\n");
                 if (qtd_alunos == 0) {
                     printf("Nenhum aluno cadastrado.\n");
                     break;
